@@ -3,7 +3,7 @@ iftraffic
 
 Checks the utilization of a given interface name with snmp. without the overhead of check_traffic.
    
-based on check\_traffic from Adrian Wieczorek
+Based on check\_traffic from Adrian Wieczorek
 
 Usage 
 -----
