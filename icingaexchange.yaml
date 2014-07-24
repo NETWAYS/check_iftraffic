@@ -2,9 +2,9 @@
 name: iftraffic
 description: "file:///README.md"
 url: "https://exchange.icinga.org/exchange/iftraffic"
-tags: traffic, snmp
+tags: traffic
 vendor: ~
-target: Network/SNMP
+target: Network, SNMP
 type: Plugin
 license: gplv3
 releases: 
