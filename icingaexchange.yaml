@@ -2,7 +2,7 @@
 name: iftraffic
 description: "file:///README.md"
 url: "https://exchange.icinga.org/exchange/iftraffic"
-tags: traffic
+tags: traffic, snmp
 vendor: ~
 target: Network/SNMP
 type: Plugin
