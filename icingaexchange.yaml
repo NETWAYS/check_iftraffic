@@ -1,8 +1,8 @@
 --- 
 name: iftraffic
 description: "file:///README.md"
-url: "http://www.nagiosexchange.org/SNMP.51.0.html?&tx_netnagext_pi1[p_view]=37"
-tags: ~
+url: "https://exchange.icinga.org/exchange/iftraffic"
+tags: traffic
 vendor: ~
 target: Network/SNMP
 type: Plugin
