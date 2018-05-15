@@ -247,9 +247,8 @@ if ( ( $in_usage > $crit_usage ) or ( $out_usage > $crit_usage ) ) {
 	$exit_status = "CRITICAL";
 }
 
-if (   ( $in_usage > $warn_usage )
-	or ( $out_usage > $warn_usage ) && $exit_status eq "OK" )
-{
+if ((($in_usage > $warn_usage) or ($out_usage > $warn_usage ))
+  && $exit_status eq "OK" ) {
 	$exit_status = "WARNING";
 }
 
@@ -347,7 +346,7 @@ sub print_usage {
 
     -H --host STRING or IPADDRESS
         Check interface on the indicated host.
-    -C --community STRING 
+    -C --community STRING
         SNMP Community.
     -i --interface STRING
         Interface Name
@@ -366,4 +365,3 @@ EOU
 
 	exit( $STATUS_CODE{"UNKNOWN"} );
 }
-
