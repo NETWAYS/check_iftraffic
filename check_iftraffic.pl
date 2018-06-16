@@ -248,8 +248,8 @@ $output .= "<br>$exit_status bandwidth utilization.\n"
   if ( $exit_status ne "OK" );
 
 $output .=
-"| inUsage=$in_usage,$warn_usage,$crit_usage outUsage=$out_usage,$warn_usage,$crit_usage "
-  . "inAbsolut=$in_traffic_absolut outAbsolut=$out_traffic_absolut\n";
+"|inUsage=${in_usage}%;${warn_usage};${crit_usage} outUsage=${out_usage}%;${warn_usage};${crit_usage} "
+  . "inAbsolut=${in_traffic_absolut}c outAbsolut=${out_traffic_absolut}c";
 
 print $output;
 exit( $STATUS_CODE{$exit_status} );
