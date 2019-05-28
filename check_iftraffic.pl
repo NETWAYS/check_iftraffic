@@ -93,6 +93,7 @@ my $max_bytes;
 my $status = GetOptions(
 	"h|help"        => \$opt_h,
 	"C|community=s" => \$COMMUNITY,
+	"V|version=s"	=> \$snmp_version,
 	"w|warning=s"   => \$warn_usage,
 	"c|critical=s"  => \$crit_usage,
 	"b|bandwidth=i" => \$iface_speed,
