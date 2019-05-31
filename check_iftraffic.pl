@@ -349,6 +349,8 @@ sub print_usage {
         Check interface on the indicated host.
     -C --community STRING
         SNMP Community.
+    -V --version STRING
+        SNMP version to use (default: 1)
     -i --interface STRING
         Interface Name
     -b --bandwidth INTEGER
