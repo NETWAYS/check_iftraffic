@@ -85,11 +85,9 @@ my $warn_usage = 85;
 my $crit_usage = 98;
 my $COMMUNITY  = "public";
 
-#added 20050614 by mw
 my $max_value;
 my $max_bytes;
 
-#cosmetic changes 20050614 by mw, see old versions for detail
 my $status = GetOptions(
 	"h|help"        => \$opt_h,
 	"C|community=s" => \$COMMUNITY,
@@ -101,9 +99,7 @@ my $status = GetOptions(
 	"u|units=s"     => \$units,
 	"i|interface=s" => \$iface_descr,
 	"H|hostname=s"  => \$host_address,
-
-	#added 20050614 by mw
-	"M|max=i" => \$max_value
+	"M|max=i" 	=> \$max_value
 );
 
 if ( $status == 0 ) {
@@ -115,7 +111,6 @@ if ( ( !$host_address ) or ( !$iface_descr ) or ( !$iface_speed ) ) {
 	print_usage();
 }
 
-#change 20050414 by mw
 $iface_speed = bits2bytes( $iface_speed, $units ) / 1024;
 if ( !$max_value ) {
 
@@ -180,10 +175,7 @@ if (
   )
 {
 	while ( $row = <FILE> ) {
-
-		#cosmetic change 20050416 by mw
-		#Couldn't sustain;-)
-		chomp();
+		chomp($row);
 		( $last_check_time, $last_in_bytes, $last_out_bytes ) =
 		  split( ":", $row );
 	}
@@ -199,7 +191,6 @@ close(FILE);
 
 my $db_file;
 
-#added 20050614 by mw
 #Check for and correct counter overflow (if possible).
 #See function counter_overflow.
 $in_bytes  = counter_overflow( $in_bytes,  $last_in_bytes,  $max_bytes );
@@ -298,13 +289,11 @@ sub fetch_ifdescr {
 	return $snmpkey;
 }
 
-#added 20050416 by mw
 #Converts an input value to value in bits
 sub bits2bytes {
 	return unit2bytes(@_) / 8;
 }
 
-#added 20050416 by mw
 #Converts an input value to value in bytes
 sub unit2bytes {
 	my ( $value, $unit ) = @_;
@@ -319,12 +308,11 @@ sub unit2bytes {
 		return $value * 1024;
 	}
 	else {
-		print "You have to supplie a supported unit\n";
+		print "You have to supply a supported unit\n";
 		exit $STATUS_CODE{'UNKNOWN'};
 	}
 }
 
-#added 20050414 by mw
 #This function detects if an overflow occurs. If so, it returns
 #a computed value for $bytes.
 #If there is no counter overflow it simply returns the origin value of $bytes.
@@ -336,12 +324,9 @@ sub counter_overflow {
 	return $bytes;
 }
 
-#cosmetic changes 20050614 by mw
-#Couldn't sustaine "HERE";-), either.
 sub print_usage {
 	print <<EOU;
-    Usage: check_iftraffic.pl -H host -i if_descr -b if_max_speed [ -w warn ] [ -c crit ]
-
+    Usage: check_iftraffic.pl -H host -C community -V snmp_version -i if_descr -b if_max_speed -u unit [ -w warn ] [ -c crit ] [ -M max_counter_value ]
 
     Options:
 
@@ -364,6 +349,9 @@ sub print_usage {
     -M --max INTEGER
 	Max Counter Value of net devices in kilo/mega/giga/bytes.
 
+     Example:
+
+         check_iftraffic.pl -H localhost -C public -i en0 -b 100 -u m
 EOU
 
 	exit( $STATUS_CODE{"UNKNOWN"} );
