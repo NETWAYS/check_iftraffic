@@ -1,34 +1,9 @@
 #!/usr/bin/perl -w
 #
-# check_iftraffic.pl - Nagios(r) network traffic monitor plugin
+my $VERSION = "1.0.2";
+
+# check_iftraffic.pl - Icinga network traffic monitor plugin
 # Copyright (C) 2004 Gerd Mueller / Netways GmbH
-# $Id: check_iftraffic.pl 1119 2006-02-09 10:30:09Z gmueller $
-#
-# mw = Markus Werner mw+nagios@wobcom.de
-# Remarks (mw):
-#
-#	I adopted as much as possible the programming style of the origin code.
-#
-#	There should be a function to exit this programm,
-#	instead of calling print and exit statements all over the place.
-#
-#
-# minor changes by mw
-# 	The snmp if_counters on net devices can have overflows.
-#	I wrote this code to address this situation.
-#	It has no automatic detection and which point the overflow
-#	occurs but it will generate a warning state and you
-#	can set the max value by calling this script with an additional
-#	arg.
-#
-# minor cosmetic changes by mw
-#	Sorry but I couldn't sustain to clean up some things.
-#
-# based on check_traffic from Adrian Wieczorek, <ads (at) irc.pila.pl>
-#
-# Send us bug reports, questions and comments about this plugin.
-# Latest version of this software: http://www.nagiosexchange.org
-#
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -57,6 +32,7 @@ my $iface_number;
 my $iface_descr;
 my $iface_speed;
 my $opt_h;
+my $opt_version;
 my $units;
 
 my $session;
@@ -76,7 +52,8 @@ my $response;
 # Path to  tmp files
 my $TRAFFIC_FILE = "/tmp/traffic";
 
-my %STATUS_CODE = ('UNKNOWN' => '-1', 'OK' => '0', 'WARNING' => '1', 'CRITICAL' => '2');
+# Icinga specific
+my %ERRORS = ('OK' => 0, 'WARNING' => 1, 'CRITICAL' => 2, 'UNKNOWN' => 3, 'DEPENDENT' => 4);
 
 #default values;
 my ($in_bytes, $out_bytes) = 0;
@@ -89,6 +66,7 @@ my $max_bytes;
 
 my $status = GetOptions(
     "h|help"        => \$opt_h,
+    "v"             => \$opt_version,
     "C|community=s" => \$COMMUNITY,
     "V|version=s"   => \$snmp_version,
     "w|warning=s"   => \$warn_usage,
@@ -103,11 +81,14 @@ my $status = GetOptions(
 
 if ($status == 0) {
     print_help();
-    exit $STATUS_CODE{'OK'};
+    exit $ERRORS{'OK'};
 }
+if (defined($opt_h))       { print_help();    exit $ERRORS{"UNKNOWN"} }
+if (defined($opt_version)) { print_version(); exit $ERRORS{"UNKNOWN"} }
 
 if ((!$host_address) or (!$iface_descr) or (!$iface_speed)) {
     print_usage();
+    exit $ERRORS{'OK'};
 }
 
 $iface_speed = bits2bytes($iface_speed, $units) / 1024;
@@ -129,16 +110,16 @@ if ($snmp_version =~ /[12]/) {
 
     if (!defined($session)) {
         print("UNKNOWN: $error");
-        exit $STATUS_CODE{'UNKNOWN'};
+        exit $ERRORS{'UNKNOWN'};
     }
 } elsif ($snmp_version =~ /3/) {
     my $state = 'UNKNOWN';
     print("$state: No support for SNMP v3 yet\n");
-    exit $STATUS_CODE{$state};
+    exit $ERRORS{$state};
 } else {
     my $state = 'UNKNOWN';
     print("$state: No support for SNMP v$snmp_version yet\n");
-    exit $STATUS_CODE{$state};
+    exit $ERRORS{$state};
 }
 
 $iface_number = fetch_ifdescr($session, $iface_descr);
@@ -151,7 +132,7 @@ if (!defined($response = $session->get_request(@snmpoids))) {
     $session->close;
 
     print("WARNING: SNMP error: $answer\n");
-    exit $STATUS_CODE{'WARNING'};
+    exit $ERRORS{'WARNING'};
 }
 
 $in_bytes  = $response->{ $snmpIfInOctets . "." . $iface_number } / 1024;
@@ -167,8 +148,7 @@ my $last_out_bytes  = $out_bytes;
 if (open(FILE, "<" . $TRAFFIC_FILE . "_if" . $iface_number . "_" . $host_address)) {
     while ($row = <FILE>) {
         chomp($row);
-        ($last_check_time, $last_in_bytes, $last_out_bytes)
-            = split(":", $row);
+        ($last_check_time, $last_in_bytes, $last_out_bytes) = split(":", $row);
     }
     close(FILE);
 }
@@ -241,7 +221,7 @@ $output .= "|inUsage=${in_usage}%;${warn_usage};${crit_usage} outUsage=${out_usa
     . "inAbsolut=${in_traffic_absolut}c outAbsolut=${out_traffic_absolut}c";
 
 print $output;
-exit($STATUS_CODE{$exit_status});
+exit($ERRORS{$exit_status});
 
 sub fetch_ifdescr {
     my $state;
@@ -258,7 +238,7 @@ sub fetch_ifdescr {
         $session->close;
         $state = 'CRITICAL';
         $session->close;
-        exit $STATUS_CODE{$state};
+        exit $ERRORS{$state};
     }
 
     foreach $key (keys %{$response}) {
@@ -273,7 +253,7 @@ sub fetch_ifdescr {
         $session->close;
         $state = 'CRITICAL';
         printf "$state: Could not match $ifdescr \n";
-        exit $STATUS_CODE{$state};
+        exit $ERRORS{$state};
     }
     return $snmpkey;
 }
@@ -295,7 +275,7 @@ sub unit2bytes {
         return $value * 1024;
     } else {
         print "You have to supply a supported unit\n";
-        exit $STATUS_CODE{'UNKNOWN'};
+        exit $ERRORS{'UNKNOWN'};
     }
 }
 
@@ -310,10 +290,18 @@ sub counter_overflow {
     return $bytes;
 }
 
-sub print_usage {
-    print <<EOU;
-    Usage: check_iftraffic.pl -H host -C community -V snmp_version -i if_descr -b if_max_speed -u unit [ -w warn ] [ -c crit ] [ -M max_counter_value ]
+sub print_version { print "$0 version: $VERSION\n"; }
 
+sub print_usage {
+    print
+"Usage: $0 -H host -C community -V snmp_version -i if_descr -b if_max_speed -u unit [ -w warn ] [ -c crit ] [ -M max_counter_value ]\n";
+}
+
+sub print_help {
+    print "SNMP Network Interface Plugin for Icinga/Nagios, Version ", $VERSION, "\n";
+    print "GPLv2 license, (c) 2004 NETWAYS GmbH\n\n";
+    print_usage();
+    print <<EOT;
     Options:
 
     -H --host STRING or IPADDRESS
@@ -338,7 +326,7 @@ sub print_usage {
      Example:
 
          check_iftraffic.pl -H localhost -C public -i en0 -b 100 -u m
-EOU
+EOT
 
-    exit($STATUS_CODE{"UNKNOWN"});
+    exit($ERRORS{"UNKNOWN"});
 }
