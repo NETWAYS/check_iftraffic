@@ -123,3 +123,17 @@ Total RX Bytes: 859.84 MB, Total TX Bytes: 1566.80 MB<br>Average Traffic: 0.00 k
 ## Configuration
 
 The Icinga 2 CheckCommand is available inside the [ITL](https://icinga.com/docs/icinga2/latest/doc/10-icinga-template-library/#iftraffic).
+
+
+## Contributing
+
+Fork this repository on GitHub and send in a PR.
+
+There's a `.perltidyrc` file in the main repository tree. If you are uncertain about the coding style,
+create your patch and then run:
+
+```
+$ perltidy -b *.pl
+```
+
+This requires the `perltidy` module being installed.
