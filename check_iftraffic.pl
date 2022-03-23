@@ -21,6 +21,8 @@ my $VERSION = "1.0.3";
 
 use strict;
 
+use Crypt::DES;
+
 use Net::SNMP;
 use Getopt::Long;
 &Getopt::Long::config('bundling');
@@ -87,7 +89,7 @@ my $status = GetOptions(
     "J|auth-phrase=s"=> \$authpasswd,
     "k|priv-proto=s" => \$privproto,
     "K|priv-phrase"  => \$privpasswd,
-    "u|user"         => \$username
+    "U|user"         => \$username
 );
 
 if ($status == 0) {
