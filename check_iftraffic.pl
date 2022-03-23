@@ -65,18 +65,23 @@ my $max_value;
 my $max_bytes;
 
 my $status = GetOptions(
-    "h|help"        => \$opt_h,
-    "v"             => \$opt_version,
-    "C|community=s" => \$COMMUNITY,
-    "V|version=s"   => \$snmp_version,
-    "w|warning=s"   => \$warn_usage,
-    "c|critical=s"  => \$crit_usage,
-    "b|bandwidth=i" => \$iface_speed,
-    "p|port=i"      => \$port,
-    "u|units=s"     => \$units,
-    "i|interface=s" => \$iface_descr,
-    "H|hostname=s"  => \$host_address,
-    "M|max=i"       => \$max_value
+    "h|help"         => \$opt_h,
+    "v"              => \$opt_version,
+    "C|community=s"  => \$COMMUNITY,
+    "V|version=s"    => \$snmp_version,
+    "w|warning=s"    => \$warn_usage,
+    "c|critical=s"   => \$crit_usage,
+    "b|bandwidth=i"  => \$iface_speed,
+    "p|port=i"       => \$port,
+    "u|units=s"      => \$units,
+    "i|interface=s"  => \$iface_descr,
+    "H|hostname=s"   => \$host_address,
+    "M|max=i"        => \$max_value,
+    "j|auth-proto=s" => \$authproto,
+    "J|auth-phrase=s"=> \$authpasswd,
+    "k|priv-proto=s" => \$privproto,
+    "K|priv-phrase"  => \$privpasswd,
+    "u|user"         => \$username
 );
 
 if ($status == 0) {
@@ -113,9 +118,23 @@ if ($snmp_version =~ /[12]/) {
         exit $ERRORS{'UNKNOWN'};
     }
 } elsif ($snmp_version =~ /3/) {
-    my $state = 'UNKNOWN';
-    print("$state: No support for SNMP v3 yet\n");
-    exit $ERRORS{$state};
+    ($session, $error) = Net::SNMP->session(
+        -hostname       => $host_address,
+        -port           => $port,
+        -version        => $snmp_version,
+        -username       => $username, # v3
+        #-authkey        => $authkey, # v3
+        -authpassword   => $authpasswd, # v3
+        -authprotocol   => $authproto, # v3
+        #-privkey        => $privkey, # v3
+        -privpassword   => $privpasswd, # v3
+        -privprotocol   => $privproto # v3
+    );
+
+    if (!defined($session)) {
+        print("UNKNOWN: $error");
+        exit $ERRORS{'UNKNOWN'};
+    }
 } else {
     my $state = 'UNKNOWN';
     print("$state: No support for SNMP v$snmp_version yet\n");
