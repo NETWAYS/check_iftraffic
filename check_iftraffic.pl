@@ -88,8 +88,8 @@ my $status = GetOptions(
     "j|auth-proto=s" => \$authproto,
     "J|auth-phrase=s"=> \$authpasswd,
     "k|priv-proto=s" => \$privproto,
-    "K|priv-phrase"  => \$privpasswd,
-    "U|user"         => \$username
+    "K|priv-phrase=s"  => \$privpasswd,
+    "U|user=s"         => \$username
 );
 
 if ($status == 0) {
