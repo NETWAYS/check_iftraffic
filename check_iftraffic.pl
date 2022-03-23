@@ -40,6 +40,12 @@ my $error;
 my $port         = 161;
 my $snmp_version = 1;
 
+my $authproto,
+my $authpasswd,
+my $privproto,
+my $privpasswd,
+my $username
+
 my @snmpoids;
 
 # SNMP OIDs for Traffic
