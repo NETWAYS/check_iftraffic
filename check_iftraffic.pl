@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-my $VERSION = "1.0.2";
+my $VERSION = "1.0.3";
 
 # check_iftraffic.pl - Icinga network traffic monitor plugin
 # Copyright (C) 2004 Gerd Mueller / Netways GmbH
@@ -40,11 +40,11 @@ my $error;
 my $port         = 161;
 my $snmp_version = 1;
 
-my $authproto,
-my $authpasswd,
-my $privproto,
-my $privpasswd,
-my $username
+my $authproto;
+my $authpasswd;
+my $privproto;
+my $privpasswd;
+my $username;
 
 my @snmpoids;
 
