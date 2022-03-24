@@ -313,7 +313,7 @@ sub counter_overflow {
     my ($bytes, $last_bytes, $max_bytes) = @_;
 
     $bytes += $max_bytes if ($bytes < $last_bytes);
-    $bytes = 0 if ($bytes < $last_bytes);
+    $bytes = 0 if ($bytes < $last_bytes || $bytes == "");
     return $bytes;
 }
 
