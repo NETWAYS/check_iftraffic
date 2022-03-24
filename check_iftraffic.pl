@@ -85,11 +85,11 @@ my $status = GetOptions(
     "i|interface=s"  => \$iface_descr,
     "H|hostname=s"   => \$host_address,
     "M|max=i"        => \$max_value,
-    "j|auth-proto=s" => \$authproto,
-    "J|auth-phrase=s"=> \$authpasswd,
-    "k|priv-proto=s" => \$privproto,
-    "K|priv-phrase=s"  => \$privpasswd,
-    "U|user=s"         => \$username
+    "j|authproto=s"  => \$authproto,
+    "J|authphrase=s" => \$authpasswd,
+    "k|privproto=s"  => \$privproto,
+    "K|privphrase=s" => \$privpasswd,
+    "U|user=s"       => \$username
 );
 
 if ($status == 0) {
@@ -349,6 +349,8 @@ sub print_help {
         % of bandwidth usage necessary to result in critical status (default: 98%)
     -M --max INTEGER
 	Max Counter Value of net devices in kilo/mega/giga/bytes.
+
+    -j 
 
      Example:
 
