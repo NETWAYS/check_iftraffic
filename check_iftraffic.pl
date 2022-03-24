@@ -348,7 +348,7 @@ sub print_help {
     -c --critical INTEGER
         % of bandwidth usage necessary to result in critical status (default: 98%)
     -M --max INTEGER
-	    Max Counter Value of net devices in kilo/mega/giga/bytes.
+	Max Counter Value of net devices in kilo/mega/giga/bytes.
     -U --user STRING
         SNMPv3 User
     -j --authproto STRING
