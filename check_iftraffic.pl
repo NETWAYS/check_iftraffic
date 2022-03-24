@@ -348,13 +348,22 @@ sub print_help {
     -c --critical INTEGER
         % of bandwidth usage necessary to result in critical status (default: 98%)
     -M --max INTEGER
-	Max Counter Value of net devices in kilo/mega/giga/bytes.
-
-    -j 
+	    Max Counter Value of net devices in kilo/mega/giga/bytes.
+    -U --user STRING
+        SNMPv3 User
+    -j --authproto STRING
+        SNMPv3 authentication phrase protocol
+    -J --authphrase STRING
+        SNMPv3 authentication phrase
+    -k --privproto STRING
+        SNMPv3 private phrase protocol
+    -K --privphrase STRING
+        SNMPv3 private phrase
 
      Example:
 
          check_iftraffic.pl -H localhost -C public -i en0 -b 100 -u m
+         check_iftraffic.pl -H localhost -V 3 -i en0 -b 100 -u m -U icinga2 -j SHA -J AUTHPHRASEHERE -k AES -K PRIVATEPHRASEHERE
 EOT
 
     exit($ERRORS{"UNKNOWN"});
