@@ -30,6 +30,7 @@ use Data::Dumper;
 my $host_address;
 my $iface_number;
 my $iface_descr;
+my $iface_name;
 my $iface_speed;
 my $opt_h;
 my $opt_version;
@@ -46,6 +47,7 @@ my @snmpoids;
 my $snmpIfInOctets  = '1.3.6.1.2.1.2.2.1.10';
 my $snmpIfOutOctets = '1.3.6.1.2.1.2.2.1.16';
 my $snmpIfDescr     = '1.3.6.1.2.1.2.2.1.2';
+my $snmpIfName      = '1.3.6.1.2.1.31.1.1.1.1';
 
 my $response;
 
@@ -75,6 +77,7 @@ my $status = GetOptions(
     "p|port=i"      => \$port,
     "u|units=s"     => \$units,
     "i|interface=s" => \$iface_descr,
+    "n|ifname=s"    => \$iface_name,
     "H|hostname=s"  => \$host_address,
     "M|max=i"       => \$max_value
 );
@@ -86,7 +89,7 @@ if ($status == 0) {
 if (defined($opt_h))       { print_help();    exit $ERRORS{"UNKNOWN"} }
 if (defined($opt_version)) { print_version(); exit $ERRORS{"UNKNOWN"} }
 
-if ((!$host_address) or (!$iface_descr) or (!$iface_speed)) {
+if ((!$host_address) or ((!$iface_descr) and (!$iface_name)) or (!$iface_speed)) {
     print_usage();
     exit $ERRORS{'OK'};
 }
@@ -122,7 +125,11 @@ if ($snmp_version =~ /[12]/) {
     exit $ERRORS{$state};
 }
 
-$iface_number = fetch_ifdescr($session, $iface_descr);
+if ($iface_descr) {
+	$iface_number = fetch_ifdescr($session, $iface_descr);
+} else {
+	$iface_number = fetch_ifname($session, $iface_name);
+}
 
 push(@snmpoids, $snmpIfInOctets . "." . $iface_number);
 push(@snmpoids, $snmpIfOutOctets . "." . $iface_number);
@@ -252,7 +259,42 @@ sub fetch_ifdescr {
     unless (defined $snmpkey) {
         $session->close;
         $state = 'CRITICAL';
-        printf "$state: Could not match $ifdescr \n";
+        printf "$state: Could not match IFDescr $ifdescr \n";
+        exit $ERRORS{$state};
+    }
+    return $snmpkey;
+}
+
+sub fetch_ifname {
+    my $state;
+    my $response;
+
+    my $snmpkey;
+    my $answer;
+    my $key;
+
+    my ($session, $ifname) = @_;
+
+    if (!defined($response = $session->get_table($snmpIfName))) {
+        $answer = $session->error;
+        $session->close;
+        $state = 'CRITICAL';
+        $session->close;
+        exit $ERRORS{$state};
+    }
+
+    foreach $key (keys %{$response}) {
+        if ($response->{$key} =~ /^$ifname$/) {
+            $key =~ /.*\.(\d+)$/;
+            $snmpkey = $1;
+
+            # print "$ifdescr = $key / $snmpkey \n";  #debug
+        }
+    }
+    unless (defined $snmpkey) {
+        $session->close;
+        $state = 'CRITICAL';
+        printf "$state: Could not match IFName $ifname \n";
         exit $ERRORS{$state};
     }
     return $snmpkey;
@@ -294,7 +336,7 @@ sub print_version { print "$0 version: $VERSION\n"; }
 
 sub print_usage {
     print
-"Usage: $0 -H host -C community -V snmp_version -i if_descr -b if_max_speed -u unit [ -w warn ] [ -c crit ] [ -M max_counter_value ]\n";
+"Usage: $0 -H host -C community -V snmp_version ( -i if_descr | -n if_name ) -b if_max_speed -u unit [ -w warn ] [ -c crit ] [ -M max_counter_value ]\n";
 }
 
 sub print_help {
