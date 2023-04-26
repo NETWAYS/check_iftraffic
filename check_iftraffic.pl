@@ -84,19 +84,18 @@ my $status = GetOptions(
 
 if ($status == 0) {
     print_help();
-    exit $ERRORS{'OK'};
+    exit $ERRORS{'UNKNOWN'};
 }
 if (defined($opt_h))       { print_help();    exit $ERRORS{"UNKNOWN"} }
 if (defined($opt_version)) { print_version(); exit $ERRORS{"UNKNOWN"} }
 
 if ((!$host_address) or ((!$iface_descr) and (!$iface_name)) or (!$iface_speed)) {
     print_usage();
-    exit $ERRORS{'OK'};
+    exit $ERRORS{'UNKNOWN'};
 }
 
 $iface_speed = bits2bytes($iface_speed, $units) / 1024;
 if (!$max_value) {
-
     #if no -M Parameter was set, set it to 32Bit Overflow
     $max_bytes = 419304;    # the value is (2^32/1024)
 } else {
@@ -245,6 +244,7 @@ sub fetch_ifdescr {
         $session->close;
         $state = 'CRITICAL';
         $session->close;
+        printf "$state: Could not establish connection \n";
         exit $ERRORS{$state};
     }
 
@@ -252,8 +252,6 @@ sub fetch_ifdescr {
         if ($response->{$key} =~ /^$ifdescr$/) {
             $key =~ /.*\.(\d+)$/;
             $snmpkey = $1;
-
-            # print "$ifdescr = $key / $snmpkey \n";  #debug
         }
     }
     unless (defined $snmpkey) {
@@ -280,6 +278,7 @@ sub fetch_ifname {
         $session->close;
         $state = 'CRITICAL';
         $session->close;
+        printf "$state: Could not establish connection \n";
         exit $ERRORS{$state};
     }
 
@@ -287,8 +286,6 @@ sub fetch_ifname {
         if ($response->{$key} =~ /^$ifname$/) {
             $key =~ /.*\.(\d+)$/;
             $snmpkey = $1;
-
-            # print "$ifdescr = $key / $snmpkey \n";  #debug
         }
     }
     unless (defined $snmpkey) {
