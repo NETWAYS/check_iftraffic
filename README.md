@@ -1,20 +1,13 @@
 # Icinga Check Plugin for Interface Traffic
 
-#### Table of Contents
-
-1. [About](#about)
-2. [License](#license)
-3. [Support](#support)
-4. [Requirements](#requirements)
-5. [Installation](#installation)
-6. [Run](#run)
-7. [Configuration](#configuration)
-
-## About
-
 Checks the utilization of a given interface name with SNMP.
 
 Based on `check_traffic` from Adrian Wieczorek.
+
+## Requirements
+
+* Perl
+* `Net::SNMP`
 
 ## License
 
@@ -25,12 +18,6 @@ This software is Copyright (c) 2004 by NETWAYS GmbH [support@netways.de](mailto:
 ## Support
 
 For bugs and feature requests please head over to our [issue tracker](https://github.com/NETWAYS/check_iftraffic/issues).
-You may also send us an email to [support@netways.de](mailto:support@netways.de) for general questions or to get technical support.
-
-## Requirements
-
-* Perl
-* `Net::SNMP` Perl library from CPAN
 
 ## Installation
 
@@ -80,7 +67,8 @@ install -o root -g root -m755 *.pl /usr/lib64/nagios/plugins/
 
 ```
 $ ./check_iftraffic.pl --help
-    Usage: check_iftraffic.pl -H host -C community -V snmp_version -i if_descr -b if_max_speed -u unit [ -w warn ] [ -c crit ] [ -M max_counter_value ]
+    Usage: check_iftraffic.pl -H host -C community -V snmp_version -i if_descr
+    -b if_max_speed -u unit [ -w warn ] [ -c crit ] [ -M max_counter_value ]
 
     Options:
 
@@ -102,10 +90,6 @@ $ ./check_iftraffic.pl --help
         % of bandwidth usage necessary to result in critical status (default: 98%)
     -M --max INTEGER
 	Max Counter Value of net devices in kilo/mega/giga/bytes.
-
-     Example:
-
-         check_iftraffic.pl -H localhost -C public -i en0 -b 100 -u m
 ```
 
 ### Thresholds
